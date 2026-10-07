@@ -1,0 +1,10 @@
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+release.properties
+.flattened-pom.xml
+# IDE
+.idea/
+.vscode/
+*.iml
