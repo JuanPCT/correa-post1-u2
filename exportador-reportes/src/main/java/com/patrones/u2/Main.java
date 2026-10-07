@@ -16,11 +16,45 @@ public final class Main {
         print(service, "Exportacion Excel", "excel", records);
         print(service, "Exportacion HTML", "html", records);
 
+        ExportConfig defaults = new ExportConfig.Builder("pdf").build();
+        System.out.println("=== Configuracion por defecto ===");
+        System.out.println(service.export(defaults, records, "UFPS"));
+
+        ExportConfig custom = new ExportConfig.Builder("excel")
+                .outputPath("build/acta.csv")
+                .pageSize("LETTER")
+                .orientation("LANDSCAPE")
+                .locale("en-US")
+                .watermarkText("BORRADOR")
+                .includeLogo(false)
+                .compress(true)
+                .maxRowsPerPage(25)
+                .build();
+        System.out.println("=== Configuracion personalizada ===");
+        System.out.println(service.export(custom, records, "UFPS"));
+
+        System.out.println("=== Validacion de configuracion inconsistente ===");
+        boolean invalidConfigRejected = false;
+        try {
+            new ExportConfig.Builder("html").compress(true).build();
+        } catch (IllegalStateException expected) {
+            invalidConfigRejected = true;
+            System.out.println("Rechazado correctamente: " + expected.getMessage());
+        }
+        if (!invalidConfigRejected) {
+            throw new IllegalStateException("compress sin outputPath debio ser rechazado");
+        }
+
+        System.out.println("=== Validacion de formato desconocido ===");
+        boolean unknownFormatRejected = false;
         try {
             ReportFactoryRegistry.resolve("json");
-            throw new IllegalStateException("json debio ser rechazado como formato");
         } catch (IllegalArgumentException expected) {
+            unknownFormatRejected = true;
             System.out.println("Rechazado correctamente: " + expected.getMessage());
+        }
+        if (!unknownFormatRejected) {
+            throw new IllegalStateException("json debio ser rechazado como formato");
         }
     }
 
